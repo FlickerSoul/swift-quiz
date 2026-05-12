@@ -9,7 +9,7 @@
 
 	const { quizzes }: { quizzes: QuizSummary[] } = $props();
 
-	const titleById = new Map(quizzes.map((q) => [q.id, q.title]));
+	const titleById = $derived(new Map(quizzes.map((q) => [q.id, q.title])));
 
 	let mounted = $state(false);
 	onMount(() => {

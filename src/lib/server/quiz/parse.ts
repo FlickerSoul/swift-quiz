@@ -60,7 +60,9 @@ export function parseQuizFile(raw: string, file = '<quiz>'): ParseResult {
 	let body: string;
 	try {
 		const parsed = matter(raw);
-		if (!parsed.matter) {
+		const hasFrontmatter =
+			parsed.data && typeof parsed.data === 'object' && Object.keys(parsed.data).length > 0;
+		if (!hasFrontmatter) {
 			throw new Error('missing YAML frontmatter — expected the file to start with a `---` block');
 		}
 		frontmatter = parsed.data;

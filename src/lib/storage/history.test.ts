@@ -7,6 +7,7 @@ import {
 	HISTORY_STORAGE_KEY,
 	HISTORY_STORAGE_VERSION,
 	recordAttempt,
+	__reloadForTests,
 	__resetForTests
 } from './history.svelte';
 
@@ -27,24 +28,27 @@ describe('history store', () => {
 		expect(getRecord(1)?.solveCount).toBe(0);
 		expect(getRecord(1)?.firstSolvedAt).toBeNull();
 
-		// snapshot persisted payload BEFORE resetting in-memory state
+		// Simulate a page reload: persisted payload stays, in-memory state is
+		// reset, then the store re-reads from localStorage.
 		const stored = window.localStorage.getItem(HISTORY_STORAGE_KEY);
 		expect(stored).not.toBeNull();
 		__resetForTests();
 		window.localStorage.setItem(HISTORY_STORAGE_KEY, stored!);
+		__reloadForTests();
 
 		expect(getRecord(1)?.attempts).toHaveLength(1);
 	});
 
-	it('updates solveCount and firstSolvedAt on correct attempt', () => {
+	it('locks the record once solved (no further attempts recorded)', () => {
 		recordAttempt(2, { at: 1_000, correct: false, submitted: 'x' });
 		recordAttempt(2, { at: 2_000, correct: true, submitted: 'y' });
-		recordAttempt(2, { at: 3_000, correct: true, submitted: 'y' });
+		recordAttempt(2, { at: 3_000, correct: false, submitted: 'z' });
 
 		const rec = getRecord(2)!;
-		expect(rec.attempts).toHaveLength(3);
-		expect(rec.solveCount).toBe(2);
+		expect(rec.attempts).toHaveLength(2);
+		expect(rec.solveCount).toBe(1);
 		expect(rec.firstSolvedAt).toBe(2_000);
+		expect(rec.solvedBy).toBe('userSolved');
 	});
 
 	it('clearQuiz removes only that quiz', () => {
@@ -91,9 +95,18 @@ describe('history store', () => {
 			HISTORY_STORAGE_KEY,
 			JSON.stringify({
 				version: HISTORY_STORAGE_VERSION,
-				data: { 42: { attempts: [{ at: 1, correct: true, submitted: 'z' }], firstSolvedAt: 1, solveCount: 1 } }
+				data: {
+					42: {
+						attempts: [{ at: 1, correct: true, submitted: 'z' }],
+						firstSolvedAt: 1,
+						solveCount: 1,
+						solvedBy: 'userSolved'
+					}
+				}
 			})
 		);
+		__reloadForTests();
 		expect(getRecord(42)?.solveCount).toBe(1);
+		expect(getRecord(42)?.solvedBy).toBe('userSolved');
 	});
 });

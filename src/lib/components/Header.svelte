@@ -14,8 +14,8 @@
 	function pickRandom() {
 		if (quizIds.length === 0) return;
 		const history = getHistory();
-		const unsolved = quizIds.filter((id) => (history[id]?.solveCount ?? 0) === 0);
-		const pool = unsolved.length > 0 ? unsolved : quizIds;
+		const open = quizIds.filter((id) => history[id]?.solvedBy == null);
+		const pool = open.length > 0 ? open : quizIds;
 		const current = page.url.pathname.match(/^\/quiz\/(\d+)/)?.[1];
 		const without = current ? pool.filter((id) => String(id) !== current) : pool;
 		const choices = without.length > 0 ? without : pool;

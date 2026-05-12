@@ -14,20 +14,24 @@
 	const record = $derived(mounted ? getRecord(quiz.id) : undefined);
 	const status = $derived.by(() => {
 		if (!record) return null;
-		if (record.solveCount > 0) return { kind: 'solved' as const, n: record.solveCount };
-		if (record.attempts.length > 0) return { kind: 'attempted' as const, n: record.attempts.length };
+		if (record.solvedBy === 'userSolved') return { kind: 'solved' as const };
+		if (record.solvedBy === 'answerRevealed') return { kind: 'revealed' as const };
+		if (record.attempts.length > 0)
+			return { kind: 'attempted' as const, n: record.attempts.length };
 		return null;
 	});
 </script>
 
 <a class="card" href="/quiz/{quiz.id}">
 	<span class="id">#{quiz.id}</span>
-	<span class="title">{quiz.title}</span>
 	<DifficultyBadge difficulty={quiz.difficulty} />
+	<span class="title">{quiz.title}</span>
 	{#if status}
 		<span class="status {status.kind}">
 			{#if status.kind === 'solved'}
-				Solved ✓{status.n > 1 ? ` (${status.n}×)` : ''}
+				Solved ✓
+			{:else if status.kind === 'revealed'}
+				Revealed
 			{:else}
 				Attempted ×{status.n}
 			{/if}
@@ -67,6 +71,10 @@
 	.status.solved {
 		color: var(--ok);
 		background: var(--ok-bg);
+	}
+	.status.revealed {
+		color: var(--fg-muted);
+		background: var(--surface);
 	}
 	.status.attempted {
 		color: var(--fg-muted);

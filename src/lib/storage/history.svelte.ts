@@ -1,4 +1,4 @@
-import type { Attempt, History, QuizRecord } from './types';
+import type { Attempt, History, QuizRecord, SolutionSource } from './types';
 
 const KEY = 'swift-quiz/history';
 
@@ -51,17 +51,21 @@ function migrate(envelope: Envelope): CurrentData | null {
 
 function isCurrent(value: unknown): value is CurrentData {
 	if (!value || typeof value !== 'object') return false;
-	return Object.values(value as Record<string, unknown>).every(
-		(v) =>
-			!!v &&
-			typeof v === 'object' &&
-			Array.isArray((v as QuizRecord).attempts) &&
-			typeof (v as QuizRecord).solveCount === 'number'
-	);
+	return Object.values(value as Record<string, unknown>).every((v) => {
+		if (!v || typeof v !== 'object') return false;
+		const r = v as QuizRecord;
+		return (
+			Array.isArray(r.attempts) &&
+			typeof r.solveCount === 'number' &&
+			(r.solvedBy === null ||
+				r.solvedBy === 'userSolved' ||
+				r.solvedBy === 'answerRevealed')
+		);
+	});
 }
 
 function emptyRecord(): QuizRecord {
-	return { attempts: [], firstSolvedAt: null, solveCount: 0 };
+	return { attempts: [], firstSolvedAt: null, solveCount: 0, solvedBy: null };
 }
 
 function readStorage(): History {
@@ -87,12 +91,14 @@ function writeStorage(value: History): void {
 	}
 }
 
-const state = $state<{ data: History; loaded: boolean }>({ data: {}, loaded: false });
+const state = $state<{ data: History }>({ data: {} });
 
-function ensureLoaded(): void {
-	if (state.loaded || typeof window === 'undefined') return;
+// Eagerly hydrate from localStorage on the client. The prerender step runs in
+// Node where `window` is undefined, so state stays empty there — that matches
+// what the prerendered HTML can render (components gate history-derived UI
+// behind a `mounted` flag to avoid hydration mismatches).
+if (typeof window !== 'undefined') {
 	state.data = readStorage();
-	state.loaded = true;
 }
 
 function persist(): void {
@@ -100,29 +106,47 @@ function persist(): void {
 }
 
 export function getHistory(): History {
-	ensureLoaded();
 	return state.data;
 }
 
 export function getRecord(id: number): QuizRecord | undefined {
-	ensureLoaded();
 	return state.data[id];
 }
 
 export function recordAttempt(id: number, attempt: Attempt): void {
-	ensureLoaded();
 	const existing = state.data[id] ?? emptyRecord();
+	// Once solved or revealed, additional attempts are not recorded.
+	if (existing.solvedBy !== null) return;
 	const next: QuizRecord = {
 		attempts: [...existing.attempts, attempt],
 		firstSolvedAt: existing.firstSolvedAt ?? (attempt.correct ? attempt.at : null),
-		solveCount: existing.solveCount + (attempt.correct ? 1 : 0)
+		solveCount: existing.solveCount + (attempt.correct ? 1 : 0),
+		solvedBy: attempt.correct ? 'userSolved' : null
 	};
 	state.data = { ...state.data, [id]: next };
 	persist();
 }
 
+export function revealAnswer(id: number): void {
+	const existing = state.data[id] ?? emptyRecord();
+	if (existing.solvedBy !== null) return;
+	const next: QuizRecord = {
+		...existing,
+		solvedBy: 'answerRevealed'
+	};
+	state.data = { ...state.data, [id]: next };
+	persist();
+}
+
+export function isSolved(id: number): boolean {
+	return state.data[id]?.solvedBy !== undefined && state.data[id]?.solvedBy !== null;
+}
+
+export function solutionSource(id: number): SolutionSource | null {
+	return state.data[id]?.solvedBy ?? null;
+}
+
 export function clearQuiz(id: number): void {
-	ensureLoaded();
 	if (!(id in state.data)) return;
 	const next = { ...state.data };
 	delete next[id];
@@ -131,7 +155,6 @@ export function clearQuiz(id: number): void {
 }
 
 export function clearAll(): void {
-	ensureLoaded();
 	state.data = {};
 	persist();
 }
@@ -139,13 +162,19 @@ export function clearAll(): void {
 /** Test-only: reset the in-memory store and clear the persisted key. */
 export function __resetForTests(): void {
 	state.data = {};
-	state.loaded = false;
 	if (typeof window !== 'undefined') {
 		try {
 			window.localStorage.removeItem(KEY);
 		} catch {
 			// ignore
 		}
+	}
+}
+
+/** Test-only: re-read from localStorage. */
+export function __reloadForTests(): void {
+	if (typeof window !== 'undefined') {
+		state.data = readStorage();
 	}
 }
 

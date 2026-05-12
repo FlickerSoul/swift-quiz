@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { grade } from '$lib/quiz/grade';
 	import type { AnswerKind, Quiz, Submission } from '$lib/quiz/types';
-	import { recordAttempt } from '$lib/storage/history.svelte';
+	import { getRecord, recordAttempt, revealAnswer } from '$lib/storage/history.svelte';
 
 	const { quiz }: { quiz: Quiz } = $props();
 
@@ -15,9 +16,27 @@
 	let typedKind = $state<AnswerKind>('prints');
 	let typedOutput = $state('');
 	let choiceIndex = $state<number | null>(null);
-	let submitted = $state(false);
-	let revealed = $state(false);
-	let result = $state<ReturnType<typeof grade> | null>(null);
+	let lastWrongAt = $state<number | null>(null);
+	let mounted = $state(false);
+
+	onMount(() => {
+		mounted = true;
+	});
+
+	const record = $derived(mounted ? getRecord(quiz.id) : undefined);
+	const resolution = $derived(record?.solvedBy ?? null);
+	const locked = $derived(resolution !== null);
+	const wrongCount = $derived(record?.attempts.filter((a) => !a.correct).length ?? 0);
+
+	const correctAnswerText = $derived.by(() => {
+		if (quiz.mode === 'typed') {
+			if (quiz.answer.kind === 'prints') return `Prints: ${quiz.answer.output}`;
+			if (quiz.answer.kind === 'compile-error') return "Doesn't compile";
+			if (quiz.answer.kind === 'trap') return 'Runtime trap';
+			return 'Non-deterministic';
+		}
+		return quiz.options[quiz.correct];
+	});
 
 	function buildSubmission(): Submission | null {
 		if (quiz.mode === 'typed') {
@@ -29,32 +48,31 @@
 
 	function handleSubmit(e: Event) {
 		e.preventDefault();
-		if (submitted) return;
+		if (locked) return;
 		const sub = buildSubmission();
 		if (!sub) return;
 		const r = grade(quiz, sub);
-		result = r;
-		submitted = true;
 		recordAttempt(quiz.id, {
 			at: Date.now(),
 			correct: r.correct,
 			submitted: sub.mode === 'typed' ? `${sub.kind}|${sub.output}` : `choice:${sub.index}`
 		});
+		if (!r.correct) {
+			lastWrongAt = Date.now();
+		}
 	}
 
 	function handleReveal() {
-		if (submitted || revealed) return;
-		revealed = true;
+		if (locked) return;
+		revealAnswer(quiz.id);
 	}
-
-	const showExplanation = $derived(submitted || revealed);
 </script>
 
 <form onsubmit={handleSubmit} aria-labelledby="answer-heading">
 	<h2 id="answer-heading" class="visually-hidden">Your answer</h2>
 
 	{#if quiz.mode === 'typed'}
-		<fieldset disabled={submitted}>
+		<fieldset disabled={locked}>
 			<legend>What does this program do?</legend>
 			<div class="kinds">
 				{#each KINDS as opt (opt.value)}
@@ -77,7 +95,7 @@
 			{/if}
 		</fieldset>
 	{:else}
-		<fieldset disabled={submitted}>
+		<fieldset disabled={locked}>
 			<legend>Pick the correct outcome</legend>
 			<div class="choices">
 				{#each quiz.options as option, i (i)}
@@ -91,44 +109,33 @@
 	{/if}
 
 	<div class="actions">
-		<button type="submit" class="primary" disabled={submitted}>Submit</button>
-		{#if !submitted}
-			<button type="button" class="ghost" onclick={handleReveal}>Reveal answer</button>
+		<button type="submit" class="primary" disabled={locked}>Submit</button>
+		{#if !locked}
+			<button type="button" class="ghost" onclick={handleReveal}>Show answer</button>
 		{/if}
 	</div>
 
-	{#if submitted && result}
-		<div class="result" class:correct={result.correct} class:wrong={!result.correct}>
-			{#if result.correct}
-				<strong>Correct.</strong>
-			{:else}
-				<strong>Not quite.</strong>
-				The answer is <code>{result.correctAnswer}</code>.
-			{/if}
-		</div>
-	{:else if revealed}
-		<div class="result revealed">
-			Revealed: the answer is
-			<code>
-				{#if quiz.mode === 'typed'}
-					{#if quiz.answer.kind === 'prints'}
-						Prints: {quiz.answer.output}
-					{:else if quiz.answer.kind === 'compile-error'}
-						Doesn't compile
-					{:else if quiz.answer.kind === 'trap'}
-						Runtime trap
-					{:else}
-						Non-deterministic
-					{/if}
-				{:else}
-					{quiz.options[quiz.correct]}
-				{/if}
-			</code>
-		</div>
+	{#if mounted}
+		{#if resolution === 'userSolved'}
+			<div class="result correct">
+				<strong>Correct.</strong> Answer: <code>{correctAnswerText}</code>.
+			</div>
+		{:else if resolution === 'answerRevealed'}
+			<div class="result revealed">
+				<strong>Revealed.</strong> Answer: <code>{correctAnswerText}</code>.
+			</div>
+		{:else if lastWrongAt !== null && wrongCount > 0}
+			{#key lastWrongAt}
+				<div class="result wrong">
+					<strong>Not quite.</strong>
+					Try again — you've made {wrongCount} attempt{wrongCount === 1 ? '' : 's'}.
+				</div>
+			{/key}
+		{/if}
 	{/if}
 </form>
 
-{#if showExplanation}
+{#if mounted && locked}
 	<section class="explanation prose">
 		<h2>Explanation</h2>
 		{@html quiz.explanationHtml}
@@ -241,6 +248,10 @@
 		background: var(--bad-bg);
 		border-color: var(--bad);
 		color: var(--bad);
+	}
+	.result.revealed {
+		background: var(--surface);
+		color: var(--fg-muted);
 	}
 	.result code {
 		font-family: var(--font-mono);

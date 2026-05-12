@@ -13,7 +13,7 @@
 	const solved = $derived.by(() => {
 		if (!mounted) return 0;
 		const h = getHistory();
-		return data.quizzes.filter((q) => (h[q.id]?.solveCount ?? 0) > 0).length;
+		return data.quizzes.filter((q) => h[q.id]?.solvedBy != null).length;
 	});
 </script>
 
@@ -39,24 +39,28 @@
 
 <ul class="quizzes">
 	{#each data.quizzes as quiz (quiz.id)}
-		<li><QuizCard {quiz} /></li>
+		<li>
+			<QuizCard {quiz} />
+		</li>
 	{/each}
 </ul>
 
 <style>
-	.lede {
-		color: var(--fg-muted);
-		max-width: 50ch;
-	}
-	.count {
-		color: var(--fg-muted);
-		font-size: 0.9rem;
-		margin-top: 1.5rem;
-	}
-	.quizzes {
-		list-style: none;
-		padding: 0;
-		margin: 1.5rem 0 0;
-		border-top: 1px solid var(--border);
-	}
+    .lede {
+        color: var(--fg-muted);
+        max-width: 50ch;
+    }
+
+    .count {
+        color: var(--fg-muted);
+        font-size: 0.9rem;
+        margin-top: 1.5rem;
+    }
+
+    .quizzes {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0 0;
+        border-top: 1px solid var(--border);
+    }
 </style>

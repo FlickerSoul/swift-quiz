@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { parseFilename } from './load';
+import { parseQuizPath } from './load';
 
-describe('parseFilename', () => {
-	it('extracts id and slug', () => {
-		expect(parseFilename('/src/lib/quizzes/018-tuple-swap.md')).toEqual({
+describe('parseQuizPath', () => {
+	it('extracts id and slug from folder name', () => {
+		expect(parseQuizPath('/src/lib/quizzes/018-tuple-swap/quiz.md')).toEqual({
 			id: 18,
 			slug: 'tuple-swap',
 			base: '018-tuple-swap'
@@ -11,22 +11,22 @@ describe('parseFilename', () => {
 	});
 
 	it('handles single-digit ids', () => {
-		expect(parseFilename('/src/lib/quizzes/1-foo.md').id).toBe(1);
+		expect(parseQuizPath('/src/lib/quizzes/1-foo/quiz.md').id).toBe(1);
 	});
 
 	it('rejects non-numeric prefix', () => {
-		expect(() => parseFilename('/src/lib/quizzes/abc-foo.md')).toThrow();
+		expect(() => parseQuizPath('/src/lib/quizzes/abc-foo/quiz.md')).toThrow();
 	});
 
 	it('rejects missing slug', () => {
-		expect(() => parseFilename('/src/lib/quizzes/001.md')).toThrow();
+		expect(() => parseQuizPath('/src/lib/quizzes/001/quiz.md')).toThrow();
 	});
 
 	it('rejects bad slug characters', () => {
-		expect(() => parseFilename('/src/lib/quizzes/001-Foo_Bar.md')).toThrow();
+		expect(() => parseQuizPath('/src/lib/quizzes/001-Foo_Bar/quiz.md')).toThrow();
 	});
 
-	it('handles bare filenames without path', () => {
-		expect(parseFilename('001-x.md').slug).toBe('x');
+	it('rejects flat .md files (legacy layout)', () => {
+		expect(() => parseQuizPath('/src/lib/quizzes/001-foo.md')).toThrow();
 	});
 });

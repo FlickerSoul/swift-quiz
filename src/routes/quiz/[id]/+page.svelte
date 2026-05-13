@@ -51,6 +51,7 @@
 		{#each quiz.verification as v, i (i)}
 			<VerificationBadge status={v} />
 		{/each}
+		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<a class="report" href={issueUrl(quiz)} target="_blank" rel="noopener noreferrer">
 			Report an issue
 		</a>
@@ -61,6 +62,7 @@
 			{#if quiz.codeFiles.length > 1}
 				<p class="filename">{file.name}</p>
 			{/if}
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html file.html}
 		{/each}
 	</section>
@@ -68,6 +70,7 @@
 	{#if quiz.hintHtml}
 		<details class="hint">
 			<summary>Hint</summary>
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			<div class="prose">{@html quiz.hintHtml}</div>
 		</details>
 	{/if}
@@ -102,15 +105,18 @@
 		gap: 0.75rem;
 		margin-top: 1.5rem;
 	}
+
 	.quiz-head h1 {
 		flex: 1;
 		margin: 0;
 		font-size: 1.5rem;
 	}
+
 	.id {
 		color: var(--fg-muted);
 		font-variant-numeric: tabular-nums;
 	}
+
 	.topics {
 		list-style: none;
 		padding: 0;
@@ -119,6 +125,7 @@
 		flex-wrap: wrap;
 		gap: 0.4rem;
 	}
+
 	.topics li {
 		font-size: 0.75rem;
 		padding: 0.1rem 0.5rem;
@@ -126,6 +133,7 @@
 		background: var(--surface);
 		color: var(--fg-muted);
 	}
+
 	.verification {
 		display: flex;
 		flex-wrap: wrap;
@@ -133,28 +141,33 @@
 		align-items: center;
 		margin-top: 0.75rem;
 	}
+
 	.report {
 		font-size: 0.75rem;
 		color: var(--fg-muted);
 		text-decoration: none;
 		margin-left: auto;
 	}
+
 	.report:hover {
 		color: var(--accent);
 		text-decoration: underline;
 	}
+
 	.code {
 		margin-top: 1.5rem;
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
 	}
+
 	.filename {
 		font-family: var(--font-mono);
 		font-size: 0.8rem;
 		color: var(--fg-muted);
 		margin: 0;
 	}
+
 	.hint {
 		margin-top: 1.25rem;
 		padding: 0.5rem 1rem;
@@ -162,28 +175,33 @@
 		border-radius: 8px;
 		background: var(--surface);
 	}
+
 	.hint summary {
 		cursor: pointer;
 		font-size: 0.9rem;
 		color: var(--fg-muted);
 	}
+
 	.prior {
 		margin-top: 2rem;
 		padding-top: 1.5rem;
 		border-top: 1px solid var(--border);
 	}
+
 	.prior-head {
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
 		gap: 1rem;
 	}
+
 	.prior h3 {
 		margin: 0;
 		font-size: 1rem;
 		color: var(--fg-muted);
 		font-weight: 500;
 	}
+
 	.ghost {
 		font: inherit;
 		font-size: 0.85rem;
@@ -194,9 +212,11 @@
 		color: var(--fg-muted);
 		cursor: pointer;
 	}
+
 	.ghost:hover {
 		color: var(--fg);
 	}
+
 	.prior ol {
 		list-style: none;
 		padding: 0;
@@ -205,26 +225,32 @@
 		flex-direction: column;
 		gap: 0.3rem;
 	}
+
 	.prior li {
 		display: flex;
 		gap: 0.6rem;
 		align-items: baseline;
 		font-size: 0.9rem;
 	}
+
 	.prior .mark {
 		font-weight: 600;
 	}
+
 	.prior li.correct .mark {
 		color: var(--ok);
 	}
+
 	.prior li.wrong .mark {
 		color: var(--bad);
 	}
+
 	.prior code {
 		font-family: var(--font-mono);
 		font-size: 0.85rem;
 		color: var(--fg-muted);
 	}
+
 	.when {
 		margin-left: auto;
 		color: var(--fg-muted);

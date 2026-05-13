@@ -38,6 +38,11 @@
 		return quiz.options[quiz.correct];
 	});
 
+	function serializeSubmission(sub: Submission): string {
+		if (sub.mode === 'choice') return `choice:${sub.index}`;
+		return sub.kind === 'prints' ? `prints|${sub.output}` : sub.kind;
+	}
+
 	function buildSubmission(): Submission | null {
 		if (quiz.mode === 'typed') {
 			return { mode: 'typed', kind: typedKind, output: typedOutput };
@@ -55,7 +60,7 @@
 		recordAttempt(quiz.id, {
 			at: Date.now(),
 			correct: r.correct,
-			submitted: sub.mode === 'typed' ? `${sub.kind}|${sub.output}` : `choice:${sub.index}`
+			submitted: serializeSubmission(sub)
 		});
 		if (!r.correct) {
 			lastWrongAt = Date.now();
@@ -138,6 +143,7 @@
 {#if mounted && locked}
 	<section class="explanation prose">
 		<h2>Explanation</h2>
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html quiz.explanationHtml}
 	</section>
 {/if}
@@ -149,26 +155,31 @@
 		gap: 1rem;
 		margin-top: 2rem;
 	}
+
 	fieldset {
 		border: 1px solid var(--border);
 		border-radius: 8px;
 		padding: 1rem 1.25rem;
 		margin: 0;
 	}
+
 	fieldset:disabled {
 		opacity: 0.75;
 	}
+
 	legend {
 		padding: 0 0.4rem;
 		font-size: 0.9rem;
 		color: var(--fg-muted);
 	}
+
 	.kinds,
 	.choices {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 	}
+
 	.kind,
 	.choice {
 		display: flex;
@@ -177,20 +188,24 @@
 		cursor: pointer;
 		padding: 0.3rem 0;
 	}
+
 	.kind input,
 	.choice input {
 		accent-color: var(--accent);
 	}
+
 	.output {
 		display: flex;
 		flex-direction: column;
 		gap: 0.4rem;
 		margin-top: 0.75rem;
 	}
+
 	.output span {
 		font-size: 0.85rem;
 		color: var(--fg-muted);
 	}
+
 	textarea {
 		font: inherit;
 		font-family: var(--font-mono);
@@ -202,68 +217,82 @@
 		color: inherit;
 		resize: vertical;
 	}
+
 	textarea:focus {
 		outline: 2px solid var(--accent);
 		outline-offset: 1px;
 	}
+
 	.actions {
 		display: flex;
 		gap: 0.75rem;
 	}
+
 	button {
 		font: inherit;
 		padding: 0.5rem 1rem;
 		border-radius: 6px;
 		cursor: pointer;
 	}
+
 	.primary {
 		background: var(--accent);
 		color: white;
 		border: 1px solid var(--accent);
 	}
+
 	.primary:disabled {
 		opacity: 0.5;
 		cursor: default;
 	}
+
 	.ghost {
 		background: transparent;
 		border: 1px solid var(--border);
 		color: var(--fg-muted);
 	}
+
 	.ghost:hover {
 		color: var(--fg);
 	}
+
 	.result {
 		padding: 0.75rem 1rem;
 		border-radius: 8px;
 		border: 1px solid var(--border);
 		font-size: 0.95rem;
 	}
+
 	.result.correct {
 		background: var(--ok-bg);
 		border-color: var(--ok);
 		color: var(--ok);
 	}
+
 	.result.wrong {
 		background: var(--bad-bg);
 		border-color: var(--bad);
 		color: var(--bad);
 	}
+
 	.result.revealed {
 		background: var(--surface);
 		color: var(--fg-muted);
 	}
+
 	.result code {
 		font-family: var(--font-mono);
 		background: rgba(0, 0, 0, 0.04);
 		padding: 0.05em 0.4em;
 		border-radius: 3px;
 	}
+
 	.explanation {
 		margin-top: 2rem;
 		padding-top: 1.5rem;
 		border-top: 1px solid var(--border);
 	}
+
 	.visually-hidden {
 		position: absolute;
 		width: 1px;

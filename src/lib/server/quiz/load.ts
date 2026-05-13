@@ -6,20 +6,19 @@ import { pickVerifyMode, verifyAll } from './verify';
 import { SWIFT_VERSIONS } from '$lib/quiz/config';
 import type { CodeFile, Quiz, QuizSummary } from '$lib/quiz/types';
 
-const FILENAME_RE = /^(\d+)-([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\.md$/i;
+const QUIZ_PATH_RE = /(?:^|\/)(\d+)-([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\/quiz\.md$/i;
 
-export function parseFilename(path: string): { id: number; slug: string; base: string } {
-	const file = path.replace(/^.*\//, '');
-	const m = file.match(FILENAME_RE);
+export function parseQuizPath(path: string): { id: number; slug: string; base: string } {
+	const m = path.match(QUIZ_PATH_RE);
 	if (!m) {
 		throw new Error(
-			`[swift-quiz] ${file}: filename must be \`NNN-slug.md\` (numeric id, kebab-case slug)`
+			`[swift-quiz] ${path}: quiz path must look like \`NNN-slug/quiz.md\` (numeric id, kebab-case slug)`
 		);
 	}
 	return { id: parseInt(m[1], 10), slug: m[2], base: `${m[1]}-${m[2]}` };
 }
 
-const mdFiles = import.meta.glob('/src/lib/quizzes/*.md', {
+const mdFiles = import.meta.glob('/src/lib/quizzes/*/quiz.md', {
 	query: '?raw',
 	import: 'default',
 	eager: true
@@ -71,7 +70,7 @@ function pad3(n: number): string {
 function quizFilePaths(q: Quiz): { md: string; dir: string } {
 	const base = `${pad3(q.id)}-${q.slug}`;
 	return {
-		md: `src/lib/quizzes/${base}.md`,
+		md: `src/lib/quizzes/${base}/quiz.md`,
 		dir: `src/lib/quizzes/${base}/`
 	};
 }
@@ -159,7 +158,7 @@ async function build(): Promise<{ list: Quiz[]; byId: Map<number, Quiz> }> {
 	const swiftByFolder = groupSwiftByFolder();
 
 	for (const [path, raw] of Object.entries(mdFiles)) {
-		const { id, slug, base } = parseFilename(path);
+		const { id, slug, base } = parseQuizPath(path);
 		const existing = seen.get(id);
 		if (existing) {
 			throw new QuizParseError(path, `duplicate quiz id ${id} (also used by ${existing})`);

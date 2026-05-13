@@ -20,7 +20,8 @@ export const TOPICS = [
 	'ownership',
 	'protocols',
 	'tuples',
-	'typed-throws'
+	'typed-throws',
+	'noncopyable'
 ] as const;
 
 export type Topic = (typeof TOPICS)[number];

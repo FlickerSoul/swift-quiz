@@ -4,7 +4,7 @@
 	import DifficultyBadge from '$lib/components/DifficultyBadge.svelte';
 	import QuizNav from '$lib/components/QuizNav.svelte';
 	import VerificationBadge from '$lib/components/VerificationBadge.svelte';
-	import { issueUrl } from '$lib/quiz/issue';
+	import { reportIssueUrl } from '$lib/quiz/issue';
 	import { clearQuiz, getRecord } from '$lib/storage/history.svelte';
 
 	const { data } = $props();
@@ -52,10 +52,14 @@
 			<VerificationBadge status={v} />
 		{/each}
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a class="report" href={issueUrl(quiz)} target="_blank" rel="noopener noreferrer">
+		<a class="report" href={reportIssueUrl(quiz)} target="_blank" rel="noopener noreferrer">
 			Report an issue
 		</a>
 	</div>
+	<p class="verification-help">
+		Verified quizzes have their expected answer checked by compiling and running the code with the
+		listed Swift toolchain during the site build.
+	</p>
 
 	<section class="code">
 		{#each quiz.codeFiles as file (file.name)}
@@ -147,6 +151,13 @@
 		color: var(--fg-muted);
 		text-decoration: none;
 		margin-left: auto;
+	}
+
+	.verification-help {
+		margin: 0.4rem 0 0;
+		font-size: 0.75rem;
+		color: var(--fg-muted);
+		line-height: 1.4;
 	}
 
 	.report:hover {

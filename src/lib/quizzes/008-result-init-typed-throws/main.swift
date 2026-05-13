@@ -1,12 +1,12 @@
 enum E: Error {
-  case bad
+    case bad
 }
 
 func b() throws(E) -> Int {
-  throw E.bad
+    throw E.bad
 }
 
-func requirement(_ value: Result<Int, E>) {}
+func requirement(_: Result<Int, E>) {}
 
 let r = Result { try b() }
 requirement(r)

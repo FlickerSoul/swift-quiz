@@ -1,5 +1,7 @@
 extension Equatable {
-    func same(as other: Self) -> Bool { self == other }
+    func same(as other: Self) -> Bool {
+        self == other
+    }
 }
 
 let a: any Equatable = 1

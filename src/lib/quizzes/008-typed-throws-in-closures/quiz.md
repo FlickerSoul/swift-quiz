@@ -1,5 +1,5 @@
 ---
-title: Result.init and Typed Throws
+title: Typed Throws in Closures
 difficulty: medium
 topics:
   - typed-throws

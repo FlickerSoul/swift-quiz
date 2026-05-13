@@ -28,14 +28,16 @@
 	const locked = $derived(resolution !== null);
 	const wrongCount = $derived(record?.attempts.filter((a) => !a.correct).length ?? 0);
 
-	const correctAnswerText = $derived.by(() => {
+	type CorrectAnswer = { kind: 'prints'; output: string } | { kind: 'text'; text: string };
+
+	const correctAnswer = $derived.by<CorrectAnswer>(() => {
 		if (quiz.mode === 'typed') {
-			if (quiz.answer.kind === 'prints') return `Prints: ${quiz.answer.output}`;
-			if (quiz.answer.kind === 'compile-error') return "Doesn't compile";
-			if (quiz.answer.kind === 'trap') return 'Runtime trap';
-			return 'Non-deterministic';
+			if (quiz.answer.kind === 'prints') return { kind: 'prints', output: quiz.answer.output };
+			if (quiz.answer.kind === 'compile-error') return { kind: 'text', text: "Doesn't compile" };
+			if (quiz.answer.kind === 'trap') return { kind: 'text', text: 'Runtime trap' };
+			return { kind: 'text', text: 'Non-deterministic' };
 		}
-		return quiz.options[quiz.correct];
+		return { kind: 'text', text: quiz.options[quiz.correct] };
 	});
 
 	function serializeSubmission(sub: Submission): string {
@@ -123,11 +125,23 @@
 	{#if mounted}
 		{#if resolution === 'userSolved'}
 			<div class="result correct">
-				<strong>Correct.</strong> Answer: <code>{correctAnswerText}</code>.
+				<div class="result-line"><strong>Correct.</strong> Answer:</div>
+				{#if correctAnswer.kind === 'prints'}
+					<p class="answer-label">Prints:</p>
+					<pre class="answer-block"><code>{correctAnswer.output}</code></pre>
+				{:else}
+					<code class="answer-inline">{correctAnswer.text}</code>
+				{/if}
 			</div>
 		{:else if resolution === 'answerRevealed'}
 			<div class="result revealed">
-				<strong>Revealed.</strong> Answer: <code>{correctAnswerText}</code>.
+				<div class="result-line"><strong>Revealed.</strong> Answer:</div>
+				{#if correctAnswer.kind === 'prints'}
+					<p class="answer-label">Prints:</p>
+					<pre class="answer-block"><code>{correctAnswer.output}</code></pre>
+				{:else}
+					<code class="answer-inline">{correctAnswer.text}</code>
+				{/if}
 			</div>
 		{:else if lastWrongAt !== null && wrongCount > 0}
 			{#key lastWrongAt}
@@ -280,11 +294,45 @@
 		color: var(--fg-muted);
 	}
 
-	.result code {
+	.result-line {
+		display: flex;
+		gap: 0.4rem;
+		align-items: baseline;
+	}
+
+	.answer-inline {
 		font-family: var(--font-mono);
 		background: rgba(0, 0, 0, 0.04);
 		padding: 0.05em 0.4em;
 		border-radius: 3px;
+		margin-left: 0.25rem;
+	}
+
+	.answer-label {
+		margin: 0.5rem 0 0.25rem;
+		font-size: 0.85rem;
+		color: var(--fg-muted);
+	}
+
+	.answer-block {
+		margin: 0;
+		padding: 0.75rem 1rem;
+		background: rgba(0, 0, 0, 0.04);
+		border: 1px solid var(--border);
+		border-radius: 6px;
+		overflow-x: auto;
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: var(--fg);
+		white-space: pre;
+		tab-size: 2;
+	}
+
+	.answer-block code {
+		font-family: inherit;
+		background: transparent;
+		padding: 0;
 	}
 
 	.explanation {

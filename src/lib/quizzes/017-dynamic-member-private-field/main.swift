@@ -4,4 +4,4 @@ struct Wrap {
     private var y = 7
     subscript(dynamicMember key: String) -> Int { 99 }
 }
-print(Wrap().y)     // outside the type
+print(Wrap().y)

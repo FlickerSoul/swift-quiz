@@ -4,7 +4,7 @@ protocol P {
 extension P { func f() { print("ext-P") } }
 
 protocol Q: P {
-    func f()   // re-stated
+    func f()
 }
 extension Q { func f() { print("ext-Q") } }
 

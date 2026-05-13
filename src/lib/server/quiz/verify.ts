@@ -208,14 +208,38 @@ export async function verifyAll(
 	opts: VerifyOptions
 ): Promise<Map<number, VerificationStatus[]>> {
 	const out = new Map<number, VerificationStatus[]>();
+	const total = quizzes.length;
+	const width = String(total).length;
 	// Sequential per-quiz to keep swiftc out of contention; the cached path
 	// is fast enough that this doesn't matter for warm builds.
-	for (const quiz of quizzes) {
+	for (const [index, quiz] of quizzes.entries()) {
 		const results: VerificationStatus[] = [];
 		for (const spec of opts.versions) {
-			results.push(await verifyOne(quiz, spec, opts));
+			const result = await verifyOne(quiz, spec, opts);
+			results.push(result);
+			logVerification(quiz, result, index + 1, total, width);
 		}
 		out.set(quiz.id, results);
 	}
 	return out;
+}
+
+function pad3(n: number): string {
+	return String(n).padStart(3, '0');
+}
+
+function logVerification(
+	quiz: Quiz,
+	result: VerificationStatus,
+	index: number,
+	total: number,
+	width: number
+): void {
+	const progress = `[${String(index).padStart(width, ' ')}/${total}]`;
+	const tag = `#${pad3(quiz.id)} ${quiz.slug}`;
+	let status: string;
+	if (result.kind === 'verified') status = `✓ Swift ${result.version}`;
+	else if (result.kind === 'failed') status = `✗ Swift ${result.version}`;
+	else status = `– skipped (${result.reason})`;
+	process.stdout.write(`[swift-quiz] ${progress} ${tag}: ${status}\n`);
 }

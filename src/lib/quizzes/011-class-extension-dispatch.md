@@ -20,7 +20,7 @@ answer:
 
 When a class conforms to a protocol but doesn't implement a requirement,
 the compiler fills the witness slot with the protocol's default. That
-choice is *frozen* at the point of the conformance declaration. What
+choice is _frozen_ at the point of the conformance declaration. What
 does that mean for a subclass that later defines its own `foo()`?
 
 ## Explanation
@@ -31,7 +31,7 @@ Two dispatch mechanisms collide here:
   `B.foo` virtually, so a direct call `C().foo()` finds `C`'s
   implementation through `C`'s vtable.
 - **Protocol witness dispatch.** Whoever declares the conformance — `B`,
-  in this case — picks the witness for `foo` *once*, when the
+  in this case — picks the witness for `foo` _once_, when the
   conformance is recorded. `B` itself didn't implement `foo`, so its
   witness for `P.foo` is the protocol-extension default `"P"`.
 

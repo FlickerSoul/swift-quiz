@@ -5,9 +5,9 @@ topics:
   - operator-precedence
   - optionals
 options:
-  - "0"
-  - "1"
-  - "nil"
+  - '0'
+  - '1'
+  - 'nil'
   - compile error
 correct: 1
 ---
@@ -18,7 +18,7 @@ What's the precedence of `??` compared to `+`?
 
 ## Explanation
 
-The nil-coalescing operator `??` has *lower* precedence than the arithmetic
+The nil-coalescing operator `??` has _lower_ precedence than the arithmetic
 operators, so
 
 ```swift

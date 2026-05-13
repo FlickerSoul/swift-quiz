@@ -51,11 +51,7 @@ function groupSwiftByFolder(): Map<string, SwiftSource[]> {
 	return map;
 }
 
-function filterByGlobs(
-	files: SwiftSource[],
-	patterns: string[],
-	quizFile: string
-): SwiftSource[] {
+function filterByGlobs(files: SwiftSource[], patterns: string[], quizFile: string): SwiftSource[] {
 	let isMatch: (s: string) => boolean;
 	try {
 		isMatch = picomatch(patterns, { dot: true });
@@ -228,10 +224,7 @@ async function build(): Promise<{ list: Quiz[]; byId: Map<number, Quiz> }> {
 
 	const fullyFailed = list
 		.map((q) => ({ q, results: verification.get(q.id) ?? [] }))
-		.filter(
-			({ results }) =>
-				results.length > 0 && results.every((r) => r.kind === 'failed')
-		);
+		.filter(({ results }) => results.length > 0 && results.every((r) => r.kind === 'failed'));
 	if (fullyFailed.length > 0) {
 		abortWithVerificationError(fullyFailed);
 	}

@@ -17,7 +17,7 @@ scope for `S`?
 
 ## Explanation
 
-`S` conforms to both `P` and `Q`, and *both* extensions provide an
+`S` conforms to both `P` and `Q`, and _both_ extensions provide an
 unsolicited `f()`. Neither one is a requirement (so there's no witness
 table to consult). Static dispatch has to pick one of them.
 
@@ -26,7 +26,7 @@ extension on `Q` is more specific than an extension on `P` for a type
 that conforms to `Q`. The compiler binds `S().f()` to `extension Q`'s
 default — `"Q"`.
 
-If the two protocols had been *unrelated*, this same code would have been
+If the two protocols had been _unrelated_, this same code would have been
 ambiguous and failed to compile:
 
 ```swift
@@ -38,7 +38,7 @@ struct S: P, Q {}
 S().f()   // error: ambiguous use of 'f'
 ```
 
-So the diamond shape isn't incidental — it's *what* gives the compiler a
+So the diamond shape isn't incidental — it's _what_ gives the compiler a
 total order. Refinement is the tie-breaker.
 
 And as in the previous quiz, the moment you turn `f` into a requirement

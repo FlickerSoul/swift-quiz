@@ -1,10 +1,6 @@
 <script lang="ts">
 	import type { QuizSummary } from '$lib/quiz/types';
-	import {
-		clearAll,
-		clearQuiz,
-		getHistory
-	} from '$lib/storage/history.svelte';
+	import { clearAll, clearQuiz, getHistory } from '$lib/storage/history.svelte';
 	import { onMount } from 'svelte';
 
 	const { quizzes }: { quizzes: QuizSummary[] } = $props();

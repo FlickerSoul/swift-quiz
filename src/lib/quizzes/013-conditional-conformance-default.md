@@ -40,7 +40,7 @@ inheritance. Together they cover almost every dispatch puzzle you'll
 see: when multiple defaults are in scope, prefer the one whose `where`
 clause is the strict subset of the alternatives.
 
-The trickiest variant: if your conforming type *acquires* `Equatable`
+The trickiest variant: if your conforming type _acquires_ `Equatable`
 later (e.g. via a synthesized `Equatable` from compiler-generated
 memberwise equality), the dispatched implementation can flip from `1` to
 `2` without any change at the call site. Adding a protocol conformance

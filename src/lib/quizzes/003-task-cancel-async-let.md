@@ -22,7 +22,7 @@ regular function inherit cancellation from its caller?
 There are two surprises here.
 
 **The order of "after let" and "resumed".** `async let a = { … }()` spawns
-the closure on a child task and *does not* await it on this line. Control
+the closure on a child task and _does not_ await it on this line. Control
 falls through to the next statement, so `print("after let")` runs first.
 The implicit `await` on `a` only fires at the end of the enclosing scope —
 that's where the outer task suspends until the closure returns.
@@ -31,7 +31,7 @@ that's where the outer task suspends until the closure returns.
 `task.cancel()` propagates cancellation to the outer `Task` and to its
 structured children (including the `async let` child). But:
 
-1. Cancellation is *cooperative*: nothing inside the `async let` body
+1. Cancellation is _cooperative_: nothing inside the `async let` body
    actually checks `Task.isCancelled` or calls a cancellation-throwing
    primitive on the cancelled-task path.
 2. The `try await Task.sleep` lives inside an **unstructured**

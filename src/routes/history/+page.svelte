@@ -9,9 +9,7 @@
 </svelte:head>
 
 <h1>History</h1>
-<p class="lede">
-	Stored only in your browser. Nothing is sent to a server.
-</p>
+<p class="lede">Stored only in your browser. Nothing is sent to a server.</p>
 
 <HistoryTable quizzes={data.quizzes} />
 

@@ -14,7 +14,7 @@ answer:
 ## Hint
 
 `consuming` on a `~Copyable` value transfers ownership. What can it possibly
-mean on an ordinary value-type that *is* `Copyable`?
+mean on an ordinary value-type that _is_ `Copyable`?
 
 ## Explanation
 
@@ -26,7 +26,7 @@ On a plain `Copyable` `struct` like `Point`, ownership doesn't really exist
 as a constraint — the type freely copies. `consuming` here means "the
 callee gets its own mutable copy of `self`, separate from the caller's
 binding." The caller's `p` is **copied** into the call, the body mutates
-*that* copy (`self.x += 1`), and returns it. The original `p` is never
+_that_ copy (`self.x += 1`), and returns it. The original `p` is never
 touched.
 
 So:
@@ -36,6 +36,6 @@ So:
 
 If you want a method that mutates the caller's storage in place, use
 `mutating` (and bind to a `var`). `consuming` on a `Copyable` type is
-mostly useful as a *hint* — it signals that the body is going to mutate
+mostly useful as a _hint_ — it signals that the body is going to mutate
 `self` for its own purposes, and you should treat the call site as
 "throwing away" the input value.

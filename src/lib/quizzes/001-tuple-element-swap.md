@@ -19,7 +19,7 @@ from the same root variable?
 The compiler is happy with this code — `t.0` and `t.1` are statically known
 to be distinct fields, so on its face `swap(&t.0, &t.1)` looks like it
 should be fine. But `swap(_:_:)` requires its two `inout` arguments to refer
-to **disjoint** storage, and the *dynamic* exclusivity check sees that both
+to **disjoint** storage, and the _dynamic_ exclusivity check sees that both
 accesses share the same root variable `t` and traps:
 
 ```

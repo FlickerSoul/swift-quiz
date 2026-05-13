@@ -23,7 +23,7 @@ subscript over `Inner`, and a string subscript. What's the precedence?
 
 1. **Ordinary member lookup.** If `Wrap` has a real (visible) member with
    the requested name, it wins outright — `@dynamicMemberLookup` is a
-   *fallback*, not a hijack.
+   _fallback_, not a hijack.
 2. **Subscript candidates whose `dynamicMember` parameter type matches.**
    For a key-path-based subscript, the candidate is applicable only if a
    `KeyPath<T, U>` for the requested name exists on `T`. The most
@@ -49,10 +49,10 @@ w.z   → no real member named z on Wrap
 Two things people miss:
 
 - Adding `var y = 0` to `Wrap` is what stole `w.y` from the inner. If you
-  *want* the wrapped value's property to win for shared names, you have
+  _want_ the wrapped value's property to win for shared names, you have
   to either rename `Wrap`'s field or not store it as a normal member.
 - Whether a key-path subscript is applicable to `\.<name>` is decided
-  *statically*, by what `Inner` exposes at the call site. There's no
+  _statically_, by what `Inner` exposes at the call site. There's no
   runtime "look up `z` and discover it doesn't exist" — the compiler
   rejects the key-path overload outright and the string overload is the
   only remaining match.

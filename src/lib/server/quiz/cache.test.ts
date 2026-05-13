@@ -52,7 +52,10 @@ describe('loadCache/saveCache', () => {
 	});
 
 	it('treats payloads from other cache versions as empty', async () => {
-		const stale = { version: 999, entries: { abc: { result: { kind: 'verified' }, recordedAt: 0 } } };
+		const stale = {
+			version: 999,
+			entries: { abc: { result: { kind: 'verified' }, recordedAt: 0 } }
+		};
 		const { writeFile } = await import('node:fs/promises');
 		await writeFile(path, JSON.stringify(stale));
 		expect(await loadCache(path)).toEqual(emptyCache());

@@ -57,9 +57,7 @@ function isCurrent(value: unknown): value is CurrentData {
 		return (
 			Array.isArray(r.attempts) &&
 			typeof r.solveCount === 'number' &&
-			(r.solvedBy === null ||
-				r.solvedBy === 'userSolved' ||
-				r.solvedBy === 'answerRevealed')
+			(r.solvedBy === null || r.solvedBy === 'userSolved' || r.solvedBy === 'answerRevealed')
 		);
 	});
 }

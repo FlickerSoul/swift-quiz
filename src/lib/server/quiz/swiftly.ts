@@ -28,7 +28,12 @@ export function parseListAvailableJson(stdout: string): Toolchain[] {
 	}));
 }
 
-export type SpawnResult = { stdout: string; stderr: string; exitCode: number; signal: string | null };
+export type SpawnResult = {
+	stdout: string;
+	stderr: string;
+	exitCode: number;
+	signal: string | null;
+};
 
 // Wrapper around execFile that resolves on any exit (including non-zero) so
 // callers can branch on exit code. Throws only on spawn errors (e.g. command

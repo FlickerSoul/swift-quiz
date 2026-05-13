@@ -27,7 +27,7 @@ parameters and preserves it for results:
    └─ parameter type: A is allowed where B is expected   (contravariant)
 ```
 
-So `f: (A) -> B` *is* a `(B) -> A` from the caller's point of view — any
+So `f: (A) -> B` _is_ a `(B) -> A` from the caller's point of view — any
 caller passing a `B` is passing a valid `A`, and any caller expecting an
 `A` is happy to receive a `B`. Swift inserts the bridging thunk
 automatically, no cast needed.
@@ -43,6 +43,6 @@ function to fit a wider hole. The reverse assignment
 var h: (A) -> B = g   // error
 ```
 
-does *not* type-check — `g` only promises to return an `A`, which is
+does _not_ type-check — `g` only promises to return an `A`, which is
 weaker than a `B`, and accepts only a `B`-or-subclass, which is stronger
 than an `A`.

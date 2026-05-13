@@ -14,7 +14,7 @@ answer:
 
 ## Hint
 
-`P` requires `f`. `Q: P` *also* requires `f`. `S: Q` doesn't implement
+`P` requires `f`. `Q: P` _also_ requires `f`. `S: Q` doesn't implement
 either. With two defaults in scope (one on `P`, one on `Q`), which one
 becomes the witness for `S`'s conformance to `P`?
 
@@ -25,8 +25,8 @@ has a real effect: it asks the compiler to **pick a witness for `Q.f`
 separately from `P.f`** when a type adopts `Q`. The witness-resolution
 search runs in the conforming type's most-refined context — for `S`,
 that's `S: Q`, which makes `extension Q`'s default a candidate. It's the
-most-specific candidate, so it wins. The compiler then uses *the same
-implementation* to satisfy `S`'s inherited `P.f` witness.
+most-specific candidate, so it wins. The compiler then uses _the same
+implementation_ to satisfy `S`'s inherited `P.f` witness.
 
 So:
 
@@ -36,7 +36,7 @@ S().f()          // direct: extension Q's default            → ext-Q
 (S() as Q).f()   // witness for Q.f on S = extension Q's f   → ext-Q
 ```
 
-If you *remove* the re-statement from `Q`, the picture changes:
+If you _remove_ the re-statement from `Q`, the picture changes:
 
 ```swift
 protocol Q: P {}                  // no longer re-stating f
@@ -47,7 +47,7 @@ struct S: Q {}
 
 Now `Q`'s `f` is just an extension method, not a requirement. The
 witness for `P.f` on `S` is still filled (because `S` conforms to `P`
-transitively), but the compiler picks it from the *unrefined* `P`
+transitively), but the compiler picks it from the _unrefined_ `P`
 extensions — which means the default `ext-P` wins.
 
 Re-stating is the trick used in the standard library (e.g.

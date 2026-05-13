@@ -18,12 +18,7 @@ const TopicSchema = z.enum(TOPICS);
 
 export const DifficultySchema = z.enum(['easy', 'medium', 'hard']);
 
-export const AnswerKindSchema = z.enum([
-	'prints',
-	'compile-error',
-	'trap',
-	'non-deterministic'
-]);
+export const AnswerKindSchema = z.enum(['prints', 'compile-error', 'trap', 'non-deterministic']);
 
 export const TypedAnswerSchema = z.discriminatedUnion('kind', [
 	z.object({ kind: z.literal('prints'), output: z.string() }),
@@ -53,7 +48,8 @@ const RawFrontmatterSchema = z
 		if (hasAnswer && (hasOptions || hasCorrect)) {
 			ctx.addIssue({
 				code: 'custom',
-				message: 'set either `answer` (typed mode) or `options`/`correct` (multiple choice), not both'
+				message:
+					'set either `answer` (typed mode) or `options`/`correct` (multiple choice), not both'
 			});
 		}
 		if (!hasAnswer && !hasOptions && !hasCorrect) {
@@ -76,11 +72,7 @@ const RawFrontmatterSchema = z
 				message: '`options` is required when `correct` is set'
 			});
 		}
-		if (
-			d.options !== undefined &&
-			d.correct !== undefined &&
-			d.correct >= d.options.length
-		) {
+		if (d.options !== undefined && d.correct !== undefined && d.correct >= d.options.length) {
 			ctx.addIssue({
 				code: 'custom',
 				path: ['correct'],

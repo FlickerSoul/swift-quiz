@@ -70,9 +70,7 @@ describe('history store', () => {
 		const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
 			throw new Error('quota');
 		});
-		expect(() =>
-			recordAttempt(1, { at: 1, correct: true, submitted: 'a' })
-		).not.toThrow();
+		expect(() => recordAttempt(1, { at: 1, correct: true, submitted: 'a' })).not.toThrow();
 		expect(getRecord(1)?.solveCount).toBe(1);
 		spy.mockRestore();
 	});
@@ -80,7 +78,10 @@ describe('history store', () => {
 	it('ignores stored payloads from unknown versions', () => {
 		window.localStorage.setItem(
 			HISTORY_STORAGE_KEY,
-			JSON.stringify({ version: 999, data: { 1: { attempts: [], firstSolvedAt: null, solveCount: 99 } } })
+			JSON.stringify({
+				version: 999,
+				data: { 1: { attempts: [], firstSolvedAt: null, solveCount: 99 } }
+			})
 		);
 		expect(getHistory()).toEqual({});
 	});

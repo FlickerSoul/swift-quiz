@@ -20,7 +20,7 @@ goes out of scope (or the value is consumed without being transferred
 elsewhere), the type's `deinit` runs.
 
 `discard self` is the explicit escape hatch: it tells the compiler "I'm
-ending this value's lifetime *without* running its `deinit`." It's only
+ending this value's lifetime _without_ running its `deinit`." It's only
 usable inside a `consuming` method on a noncopyable type whose `deinit` is
 defined in the same module — exactly because it's bypassing a clean-up the
 author wrote.

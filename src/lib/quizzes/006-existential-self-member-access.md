@@ -16,8 +16,8 @@ for `a.same(as: b)` to be type-checked?
 ## Explanation
 
 The extension is on `Equatable`, so `same(as:)` has the signature
-`(Self) -> (Self) -> Bool` — it takes another value of the *same concrete
-type* as the receiver.
+`(Self) -> (Self) -> Bool` — it takes another value of the _same concrete
+type_ as the receiver.
 
 When you upcast `1` to `any Equatable`, the compiler erases the underlying
 type. Now `a` and `b` are both `any Equatable`, but the compiler has no
@@ -33,7 +33,7 @@ error: member 'same' cannot be used on value of type 'any Equatable';
 In Swift 5.7+ you can sometimes still call methods on an existential —
 the rules were relaxed for protocol members whose signatures don't
 reference `Self` (or only do so covariantly). `same(as:)` uses `Self` in
-*input* position, which is the case that still doesn't fly: the compiler
+_input_ position, which is the case that still doesn't fly: the compiler
 would need to dispatch to a specific witness, and the witness for `Int`
 expects an `Int`, not "whatever happens to be inside the other box."
 

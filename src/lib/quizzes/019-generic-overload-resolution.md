@@ -22,7 +22,7 @@ type-checking the call — here, the body of `outer<T: A>(_:)`.
 
 Inside `outer`, the compiler only knows about `T` what `outer`'s
 constraint clause says: `T: A`. The `T: A & B` overload of `allow`
-requires the caller to know `T: B` *at the point of the call*. Inside
+requires the caller to know `T: B` _at the point of the call_. Inside
 `outer`, that knowledge isn't available, so the `T: A & B` overload is
 not applicable. The only candidate is `allow<T: A>`, which prints
 `"A only"`.
@@ -38,8 +38,8 @@ the compiler can see that `Test: A & B`, that information doesn't
 propagate into the already-compiled body of `outer`. `outer` was
 written with `T: A` and was bound to the `A`-only overload there.
 
-To get the more specific overload to win, you need the constraint *at
-the call site*:
+To get the more specific overload to win, you need the constraint _at
+the call site_:
 
 ```swift
 func outer<T: A & B>(_ val: T.Type) {

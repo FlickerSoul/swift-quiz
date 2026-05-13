@@ -46,21 +46,21 @@
 </ul>
 
 <style>
-    .lede {
-        color: var(--fg-muted);
-        max-width: 50ch;
-    }
+	.lede {
+		color: var(--fg-muted);
+		max-width: 50ch;
+	}
 
-    .count {
-        color: var(--fg-muted);
-        font-size: 0.9rem;
-        margin-top: 1.5rem;
-    }
+	.count {
+		color: var(--fg-muted);
+		font-size: 0.9rem;
+		margin-top: 1.5rem;
+	}
 
-    .quizzes {
-        list-style: none;
-        padding: 0;
-        margin: 1.5rem 0 0;
-        border-top: 1px solid var(--border);
-    }
+	.quizzes {
+		list-style: none;
+		padding: 0;
+		margin: 1.5rem 0 0;
+		border-top: 1px solid var(--border);
+	}
 </style>

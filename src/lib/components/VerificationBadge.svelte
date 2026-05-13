@@ -3,10 +3,7 @@
 
 	const { status }: { status: VerificationStatus } = $props();
 
-	const REASON_LABEL: Record<
-		Extract<VerificationStatus, { kind: 'skipped' }>['reason'],
-		string
-	> = {
+	const REASON_LABEL: Record<Extract<VerificationStatus, { kind: 'skipped' }>['reason'], string> = {
 		'multi-file': 'multi-file quiz',
 		'non-deterministic': 'non-deterministic',
 		'choice-mode': 'multiple-choice quiz',

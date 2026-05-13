@@ -25,3 +25,14 @@ requires the caller to know `T: B` _at the point of the call_. Inside
 `outer`, that knowledge isn't available, so the `T: A & B` overload is
 not applicable, even though we are passing the type across and would know the concrete type at each call site. The only
 candidate is `allow<T: A>`, which prints `"A only"`.
+
+It's easier to see if it's written as the following:
+
+```swift
+func outer(_ t: some A) {
+    inner(t)
+}
+
+func inner(_ t: some A) { print("A only") }
+func inner(_ t: some A & B) { print("A & B") }
+```

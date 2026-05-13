@@ -68,3 +68,11 @@ func describe<T>(_ b: Box<T>) where T == Int { ... }
 
 Either way, the compiler can now see the `T == Int` constraint when
 type-checking `b.tag()` and picks the constrained extension.
+
+Also, it would be easier to see if the function is written as
+
+```swift
+func describe(_ b: Box<some Any>) {
+  ...
+}
+```

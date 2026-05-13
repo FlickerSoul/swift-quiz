@@ -14,7 +14,7 @@ extension Box {
 print(Box<Int>().tag())
 print(Box<String>().tag())
 
-func describe(_ b: Box<some Any>) {
+func describe<T>(_ b: Box<T>) {
     print(b.tag())
 }
 

@@ -2,6 +2,8 @@
 title: Tuple Element Swap
 difficulty: medium
 topics:
+  - tuples
+  - exclusivity
   - ownership
 answer:
   kind: trap

@@ -4,7 +4,7 @@ import { parseQuizFile, QuizParseError } from './parse';
 const fmTyped = `---
 title: Tuple Swap
 difficulty: medium
-topics: [macro]
+topics: [macros]
 answer:
   kind: prints
   output: "(2, 1)"
@@ -18,7 +18,7 @@ It just works.
 const fmChoice = `---
 title: Optional Default
 difficulty: easy
-topics: [macro]
+topics: [macros]
 options:
   - "0"
   - "nil"
@@ -72,7 +72,7 @@ describe('parseQuizFile', () => {
 		const bad = `---
 title: Bad
 difficulty: easy
-topics: [macro]
+topics: [macros]
 answer:
   kind: prints
   output: "x"
@@ -93,7 +93,7 @@ x
 		const bad = `---
 title: Bad
 difficulty: easy
-topics: [macro]
+topics: [macros]
 answer:
   kind: prints
   output: "x"
@@ -110,7 +110,7 @@ extra info
 		const bad = `---
 title: Bad
 difficulty: easy
-topics: [macro]
+topics: [macros]
 answer:
   kind: prints
   output: "x"
@@ -127,7 +127,7 @@ only a hint
 		const bad = `---
 title: Bad
 difficulty: easy
-topics: [macro]
+topics: [macros]
 answer:
   kind: prints
   output: "x"
@@ -143,7 +143,7 @@ x
 	});
 
 	it('rejects unknown topic', () => {
-		const bad = fmTyped.replace('topics: [macro]', 'topics: [imaginary]');
+		const bad = fmTyped.replace('topics: [macros]', 'topics: [imaginary]');
 		expect(() => parseQuizFile(bad, 'x.md')).toThrow();
 	});
 });

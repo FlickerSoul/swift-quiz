@@ -2,7 +2,8 @@
 title: Optional Default Precedence
 difficulty: medium
 topics:
-  - operator precedence
+  - operator-precedence
+  - optionals
 options:
   - "0"
   - "1"

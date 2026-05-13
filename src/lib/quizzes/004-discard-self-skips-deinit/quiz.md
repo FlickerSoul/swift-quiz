@@ -3,6 +3,7 @@ title: discard self
 difficulty: medium
 topics:
   - ownership
+  - noncopyable
 answer:
   kind: prints
   output: saved
@@ -17,7 +18,8 @@ What's `discard self` for, and how does it relate to a noncopyable type's
 
 A `~Copyable` type has a single owner. By default, when the unique owner
 goes out of scope (or the value is consumed without being transferred
-elsewhere), the type's `deinit` runs.
+elsewhere), the type's `deinit` runs. It may surprise you if you are not familiar with noncopyable types, as regular
+Swift structs don't allow `deinit`.
 
 `discard self` is the explicit escape hatch: it tells the compiler "I'm
 ending this value's lifetime _without_ running its `deinit`." It's only
@@ -41,3 +43,5 @@ has been performed manually in this code path — e.g. a transactional
 running the destructor again would double-close. If you change
 `discard self` to e.g. just `return` (or remove it), both `"saved"` and
 `"deinit"` are printed.
+
+See [SE-0390](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0390-noncopyable-structs-and-enums.md#suppressing-deinit-in-a-consuming-method).

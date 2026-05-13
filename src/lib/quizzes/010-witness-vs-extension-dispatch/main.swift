@@ -1,11 +1,17 @@
 protocol P { func f() }
 protocol Q {}
-extension P { func f() {
-    print("1")
-} }
-extension Q { func g() {
-    print("1")
-} }
+
+extension P {
+    func f() {
+        print("1")
+    }
+}
+
+extension Q {
+    func g() {
+        print("1")
+    }
+}
 
 struct S: P, Q {
     func f() {

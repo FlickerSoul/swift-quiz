@@ -1,23 +1,20 @@
-func resumeLater(cont: CheckedContinuation<Int, Never>) {
-    Task {
-        try await Task.sleep(for: .seconds(1))
-        cont.resume(returning: 1)
-    }
-}
-
 let task = Task {
-    async let a: Int = {
-        let val = await withCheckedContinuation { cont in
-            resumeLater(cont: cont)
+    async let a = { () async in
+        defer { print("after waiting a") }
+        await withCheckedContinuation { cont in
+            Task {
+                try await Task.sleep(for: .seconds(2))
+                cont.resume(returning: ())
+            }
         }
-        print("resumed")
-        return val
     }()
 
-    print("after let")
+    async let b = { () async throws in
+        defer { print("after waiting b") }
+        try await Task.sleep(for: .seconds(5))
+    }()
+
+    print("end of task")
 }
 
-task.cancel()
-_ = await task.result
-
-print("finished")
+await task.result

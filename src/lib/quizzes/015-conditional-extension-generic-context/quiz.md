@@ -59,7 +59,9 @@ unconstrained extension and prints `"any"` — even though, at runtime,
 The fix: hoist the constraint onto the generic function:
 
 ```swift
-func describeInt(_ b: Box<Int>) { print(b.tag()) }       // "int"
+func describeInt(_ b: Box<Int>) {
+    print(b.tag())
+}
 // or, conditional:
 func describe<T>(_ b: Box<T>) where T == Int { ... }
 ```

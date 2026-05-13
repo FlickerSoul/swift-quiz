@@ -4,15 +4,15 @@ protocol B {}
 
 struct Test: A, B {}
 
-func outer(_ val: (some A).Type) {
-    allow(val)
+func outer<T: A>(_ val: T.Type) {
+    inner(val)
 }
 
-func allow(_: (some A).Type) {
+func inner<T: A>(_: T.Type) {
     print("A only")
 }
 
-func allow(_: (some A & B).Type) {
+func inner<T: A & B>(_: T.Type) {
     print("A & B")
 }
 

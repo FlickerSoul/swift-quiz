@@ -1,15 +1,22 @@
 protocol P { func foo() -> String }
-extension P { func foo() -> String {
-    "P"
-} }
+extension P {
+    func foo() -> String {
+        "P"
+    }
+}
 
-class A: P { func foo() -> String {
-    "A"
-} }
+class A: P {
+    func foo() -> String {
+        "A"
+    }
+}
+
 class B: P {}
-class C: B { func foo() -> String {
-    "C"
-} }
+class C: B {
+    func foo() -> String {
+        "C"
+    }
+}
 
 print(A().foo())
 print((A() as P).foo())

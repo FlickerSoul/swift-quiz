@@ -4,6 +4,7 @@ difficulty: medium
 topics:
   - ownership
   - functions
+  - noncopyable
 answer:
   kind: prints
   output: |

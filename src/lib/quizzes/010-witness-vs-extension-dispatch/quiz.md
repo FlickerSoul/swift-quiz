@@ -34,19 +34,14 @@ The rule:
 
 Apply that to each line:
 
-| call    | static type | requirement? | witness?                                                | result |
-| ------- | ----------- | ------------ | ------------------------------------------------------- | ------ |
-| `s.f()` | `S`         | yes (`P.f`)  | `S.f` → "2"                                             | `2`    |
-| `p.f()` | `P`         | yes          | `S.f` → "2"                                             | `2`    |
-| `s.g()` | `S`         | no           | n/a — static dispatch picks `S.g` → "2"                 | `2`    |
-| `q.g()` | `Q`         | no           | n/a — static dispatch picks the _extension_ `Q.g` → "1" | `1`    |
+| call    | static type | requirement? | witness?                             | result |
+| ------- | ----------- | ------------ | ------------------------------------ | ------ |
+| `s.f()` | `S`         | n/a          | static: `S.f`                        | `2`    |
+| `p.f()` | `P`         | yes          | dynamic via the witness table: `S.f` | `2`    |
+| `s.g()` | `S`         | n/a          | static: `S.g`                        | `2`    |
+| `q.g()` | `Q`         | no           | static: `Q.g`                        | `1`    |
 
 The fourth line is the trap. Even though `q`'s underlying value is `S`
 (which has its own `g()`), `g` is _not_ a protocol requirement, so the
 compiler doesn't go through a witness table. It binds the call to the
 extension method visible on the static type `Q`, which prints `"1"`.
-
-If you want `S`'s `g()` to win when invoked through `q: Q`, add
-`func g()` to the body of `Q`. That promotes `g` to a requirement, gives
-`S` a witness slot for it, and makes `q.g()` dispatch dynamically to
-`S.g()`.

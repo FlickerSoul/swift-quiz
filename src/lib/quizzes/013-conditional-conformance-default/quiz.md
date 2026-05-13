@@ -1,6 +1,6 @@
 ---
 title: Conditional Default
-difficulty: medium
+difficulty: easy
 topics:
   - conditional-conformance
   - protocols

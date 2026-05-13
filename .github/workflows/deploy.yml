@@ -1,0 +1,66 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Swiftly + Swift toolchains
+        id: cache-swiftly
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/swiftly
+          key: swiftly-${{ runner.os }}-${{ hashFiles('src/lib/quiz/config.ts') }}
+          restore-keys: |
+            swiftly-${{ runner.os }}-
+
+      - name: Install Swiftly
+        if: steps.cache-swiftly.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          arch="$(uname -m)"
+          curl -fL -o swiftly.tar.gz "https://download.swift.org/swiftly/linux/swiftly-${arch}.tar.gz"
+          tar zxf swiftly.tar.gz
+          ./swiftly init --assume-yes --skip-install --quiet-shell-followup
+
+      - name: Put Swiftly on PATH
+        run: echo "$HOME/.local/share/swiftly/bin" >> "$GITHUB_PATH"
+
+      - name: Install project dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build (force-verify every quiz against swiftc)
+        env:
+          SWIFT_QUIZ_FORCE_VERIFY: '1'
+        run: bun run build
+
+      - name: Stage build output for Vercel
+        run: |
+          set -euo pipefail
+          mkdir -p .vercel/output/static
+          cp -a build/. .vercel/output/static/
+          printf '%s\n' '{"version":3}' > .vercel/output/config.json
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: bunx vercel@latest deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN"

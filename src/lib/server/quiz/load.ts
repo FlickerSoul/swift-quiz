@@ -1,6 +1,9 @@
 import picomatch from 'picomatch';
 import { parseQuizFile, QuizParseError } from './parse';
 import { renderSwift, renderTokens } from './render';
+import { loadCache, saveCache } from './cache';
+import { pickVerifyMode, verifyAll } from './verify';
+import { SWIFT_VERSIONS } from '$lib/quiz/config';
 import type { CodeFile, Quiz, QuizSummary } from '$lib/quiz/types';
 
 const FILENAME_RE = /^(\d+)-([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\.md$/i;
@@ -65,6 +68,93 @@ function filterByGlobs(
 	return files.filter((f) => isMatch(f.relPath));
 }
 
+function pad3(n: number): string {
+	return String(n).padStart(3, '0');
+}
+
+function quizFilePaths(q: Quiz): { md: string; dir: string } {
+	const base = `${pad3(q.id)}-${q.slug}`;
+	return {
+		md: `src/lib/quizzes/${base}.md`,
+		dir: `src/lib/quizzes/${base}/`
+	};
+}
+
+function describeDeclared(q: Quiz): string {
+	if (q.mode === 'choice') return `multiple choice (option ${q.correct})`;
+	const a = q.answer;
+	if (a.kind === 'prints') return `prints ${JSON.stringify(a.output)}`;
+	if (a.kind === 'compile-error') return `compile-error`;
+	if (a.kind === 'trap') return `runtime trap`;
+	return 'non-deterministic';
+}
+
+function abortWithVerificationError(
+	failures: { q: Quiz; results: import('$lib/quiz/types').VerificationStatus[] }[]
+): never {
+	const HR = '─'.repeat(72);
+	const blocks = failures.map(({ q, results }) => {
+		const paths = quizFilePaths(q);
+		const header = `  ✗  #${pad3(q.id)} ${q.title}`;
+		const meta = [
+			`     declared answer: ${describeDeclared(q)}`,
+			`     quiz file:       ${paths.md}`,
+			`     swift sources:   ${paths.dir}`
+		].join('\n');
+
+		const versionBlocks = results
+			.map((r) => {
+				if (r.kind === 'verified') {
+					return `     ✓ Swift ${r.version}: verified`;
+				}
+				if (r.kind === 'skipped') {
+					return `     – Swift ${r.version || '(unresolved)'}: skipped (${r.reason})`;
+				}
+				const indented = r.details
+					.split('\n')
+					.map((line) => '       │ ' + line)
+					.join('\n');
+				return `     ✗ Swift ${r.version}:\n${indented}`;
+			})
+			.join('\n');
+
+		return `${header}\n${meta}\n\n${versionBlocks}`;
+	});
+
+	const summary =
+		failures.length === 1
+			? `Quiz verification failed: 1 quiz mismatched its declared answer on every configured Swift toolchain.`
+			: `Quiz verification failed: ${failures.length} quizzes mismatched their declared answer on every configured Swift toolchain.`;
+
+	const tips = [
+		`Each block below shows the declared answer, the path to the quiz files, and what swiftc actually did per toolchain.`,
+		`Fix by either correcting \`answer:\` in the .md file or updating the Swift source so it matches the declared answer.`,
+		`To skip verification temporarily: SWIFT_QUIZ_SKIP_VERIFY=1 bun run build`,
+		`To force re-verify (ignore cache):  SWIFT_QUIZ_FORCE_VERIFY=1 bun run build`
+	].join('\n  ');
+
+	const message = [
+		'',
+		HR,
+		`  [swift-quiz] ${summary}`,
+		HR,
+		'',
+		blocks.join(`\n\n${HR}\n\n`),
+		'',
+		HR,
+		`  ${tips}`,
+		HR,
+		''
+	].join('\n');
+
+	// Write directly to stderr and exit so SvelteKit's worker doesn't wrap
+	// the message with Node's uncaught-exception formatter (which adds
+	// `[…]`, `process.nextTick`, and a `Node.js vX` footer that obscure the
+	// actual authoring error).
+	process.stderr.write(message + '\n');
+	process.exit(1);
+}
+
 let cache: { list: Quiz[]; byId: Map<number, Quiz> } | null = null;
 
 async function build(): Promise<{ list: Quiz[]; byId: Map<number, Quiz> }> {
@@ -119,11 +209,37 @@ async function build(): Promise<{ list: Quiz[]; byId: Map<number, Quiz> }> {
 			slug,
 			codeFiles,
 			hintHtml,
-			explanationHtml
+			explanationHtml,
+			verification: []
 		});
 	}
 
 	list.sort((a, b) => a.id - b.id);
+
+	const mode = pickVerifyMode();
+	const cache = await loadCache();
+	const verification = await verifyAll(list, {
+		mode,
+		cache,
+		versions: SWIFT_VERSIONS,
+		forceRefresh: process.env.SWIFT_QUIZ_FORCE_VERIFY === '1'
+	});
+	if (mode === 'compile') await saveCache(cache);
+
+	const fullyFailed = list
+		.map((q) => ({ q, results: verification.get(q.id) ?? [] }))
+		.filter(
+			({ results }) =>
+				results.length > 0 && results.every((r) => r.kind === 'failed')
+		);
+	if (fullyFailed.length > 0) {
+		abortWithVerificationError(fullyFailed);
+	}
+
+	for (const quiz of list) {
+		quiz.verification = verification.get(quiz.id) ?? [];
+	}
+
 	const byId = new Map(list.map((q) => [q.id, q]));
 	return { list, byId };
 }

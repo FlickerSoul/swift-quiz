@@ -14,7 +14,8 @@ function typedQuiz(answer: TypedAnswer): Quiz {
 		files: undefined,
 		codeFiles: [],
 		hintHtml: null,
-		explanationHtml: ''
+		explanationHtml: '',
+		verification: []
 	};
 }
 
@@ -31,7 +32,8 @@ function choiceQuiz(options: string[], correct: number): Quiz {
 		files: undefined,
 		codeFiles: [],
 		hintHtml: null,
-		explanationHtml: ''
+		explanationHtml: '',
+		verification: []
 	};
 }
 

@@ -2,7 +2,7 @@
 // quiz frontmatter that isn't listed below. Must contain at least one entry
 // (the frontmatter validator uses zod's `z.enum`, which requires a non-empty
 // list).
-export const TOPICS = ['macro'] as const;
+export const TOPICS = ['macro', 'ownership', 'operator precedence'] as const;
 
 export type Topic = (typeof TOPICS)[number];
 

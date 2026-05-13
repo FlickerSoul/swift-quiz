@@ -3,6 +3,8 @@
 	import AnswerForm from '$lib/components/AnswerForm.svelte';
 	import DifficultyBadge from '$lib/components/DifficultyBadge.svelte';
 	import QuizNav from '$lib/components/QuizNav.svelte';
+	import VerificationBadge from '$lib/components/VerificationBadge.svelte';
+	import { issueUrl } from '$lib/quiz/issue';
 	import { clearQuiz, getRecord } from '$lib/storage/history.svelte';
 
 	const { data } = $props();
@@ -44,6 +46,15 @@
 			{/each}
 		</ul>
 	{/if}
+
+	<div class="verification">
+		{#each quiz.verification as v, i (i)}
+			<VerificationBadge status={v} />
+		{/each}
+		<a class="report" href={issueUrl(quiz)} target="_blank" rel="noopener noreferrer">
+			Report an issue
+		</a>
+	</div>
 
 	<section class="code">
 		{#each quiz.codeFiles as file (file.name)}
@@ -114,6 +125,23 @@
 		border-radius: 999px;
 		background: var(--surface);
 		color: var(--fg-muted);
+	}
+	.verification {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		align-items: center;
+		margin-top: 0.75rem;
+	}
+	.report {
+		font-size: 0.75rem;
+		color: var(--fg-muted);
+		text-decoration: none;
+		margin-left: auto;
+	}
+	.report:hover {
+		color: var(--accent);
+		text-decoration: underline;
 	}
 	.code {
 		margin-top: 1.5rem;

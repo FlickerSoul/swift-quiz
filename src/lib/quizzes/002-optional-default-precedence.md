@@ -1,7 +1,8 @@
 ---
 title: Optional Default Precedence
 difficulty: medium
-topics: [macro]
+topics:
+  - operator precedence
 options:
   - "0"
   - "1"
